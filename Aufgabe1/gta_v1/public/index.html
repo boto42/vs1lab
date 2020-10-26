@@ -21,8 +21,9 @@
 		</header>
 
 		<main>
-
-			<section class="tagging">
+			<div class="row">
+	<div class = col-3>
+			<section class="tagging" >
 				<h2>Tagging</h2>
 
 				<!-- ############### Aufgabe1a Form1 Start -->
@@ -31,19 +32,20 @@
 						<legend><h3> Enter your own Geotag </h3></legend>
 
 						<label for="latitude">Latitude:</label><br><br>
-						<input type="text" id="latitude" name="latitude" placeholder="0.00000" required><br><br>
+						<input type="text" id="latitude" name="latitude" placeholder="0.00000" required>
 						<label for="longitude">Longitude:</label><br><br>
-						<input type="text" id="longitude" name="longitude" placeholder="0.00000" required><br><br>
+						<input type="text" id="longitude" name="longitude" placeholder="0.00000" required>
 						<label for="name">Name:</label><br><br>
-						<input type="text" id="name" name="name" placeholder="some name" maxlength=10 required><br><br>
-						<label for="hashtag">Hashtag:</label><br><br>
-						<input type="text" id="hashtag" name="hashtag" placeholder="# + max. 10 letters"  pattern="^#[A-Za-z_äöüÄÖÜß]{1,10}$"><br><br>
+						<input type="text" id="name" name="name" placeholder="some name" maxlength=10 required>
+						<label for="hashtag">Hashtag:</label>
+						<input type="text" id="hashtag" name="hashtag" placeholder="# + max. 10 letters"  pattern="^#[A-Za-z_äöüÄÖÜß]{1,10}$">
 						<input type="submit" value="Submit">
 					</fieldset>
 				<!-- ############### Aufgabe1a Form1 Ende -->
 				</form>
 			</section>
-
+	</div>
+			<div class = col-9>
 			<section class="discovery">
 				<h2>Discovery</h2>
 
@@ -62,24 +64,31 @@
 
 				<!-- ############### Aufgabe1a Form2 Ende -->
 
+				<div class = col-5>
 				<div class="taglist">
 					<ul id="results">
 						<li>Castle (49.01379, 8.404435) #sight</li>
 						<li>IWI (49.01379, 8.390071) #edu</li>
 					</ul>
 				</div>
-
+				</div>
+				<div class = col-4>
 				<div class="tagmap">
 					<img id="result-img" src="./images/mapview.jpg" alt="a map with locations"/>
 					<div class="caption">Result map</div>
 				</div>
 
+				</div>
 			</section>
 
+			</div>
+			</div>
 		</main>
 
 		<footer>
+
 			<span>2017 by LKIT</span>
+
 		</footer>
 
 	</body>
