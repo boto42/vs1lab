@@ -11,17 +11,6 @@ a {
   box-sizing: border-box;
 }
 
-@media only screen and (max-width: 900px) {
-  /* For mobile phones: */
-  .container {
-    display: block;
-  }
-
-  [class*="col-"] {
-    display: block;
-  }
-}
-
 .container {
   display: flex;
 }
@@ -41,6 +30,17 @@ a {
 
 [class*="col-"] {
   padding: 15px;
+}
+
+@media only screen and (max-width: 900px) {
+  /* For mobile phones: */
+  .container {
+    display: block;
+  }
+
+  [class*="col-"] {
+    display: block;
+  }
 }
 
 .row::after {
