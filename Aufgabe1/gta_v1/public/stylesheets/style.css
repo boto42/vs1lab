@@ -6,3 +6,35 @@ body {
 a {
   color: #00B7FF;
 }
+
+main {
+	background :lightgray;
+}
+
+@media only screen and (min-width: 700px) {
+main {
+	display: flex;
+}
+
+
+.tagging {
+	width:33%;
+}
+
+.discovery {
+	width : 67%;
+
+}
+
+#listAndMap {
+	display: flex;
+}
+
+.taglist{
+	flex-grow:1;
+}
+.tagmap{
+	flex-grow:1;
+}
+
+}
