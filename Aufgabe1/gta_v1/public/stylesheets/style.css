@@ -13,6 +13,9 @@ a {
 
 .container {
   display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+
 }
 
 .col-1  {flex: 1;}
@@ -31,16 +34,42 @@ a {
 [class*="col-"] {
   padding: 15px;
 }
+#tag-form > fieldset > input {
+  display: block;
+  margin: 10px;
+}
 
-@media only screen and (max-width: 900px) {
+#tag-form > fieldset > label {
+  font-weight: bold;
+  margin: 10px;
+  font-size: large;
+}
+.buttonHolder{
+  text-align: center;
+}
+@media only screen and (max-width: 970px) {
   /* For mobile phones: */
   .container {
-    display: block;
+   flex-direction: column;
   }
-
   [class*="col-"] {
     display: block;
   }
+  .buttonHolder {
+    text-align: left;
+    padding: 10px;
+  }
+  .tagmap{
+    margin-left: 50%;
+  }
+
+  .tagmap{
+    margin-right:auto;
+    margin-left: auto;
+  }
+
+
+
 }
 
 .row::after {
@@ -48,14 +77,10 @@ a {
   clear: both;
   display: block;
 }
-
-#tag-form > fieldset > input {
-  display: block;
+input {
+  font-size: large;
 }
 
-#tag-form > fieldset > label {
-  font-weight: bold;
-}
 
 #results {
   margin: 0;
@@ -72,13 +97,16 @@ a {
   padding: 20px;
 }
 
+section + h2{
+  text-align: center;
+}
 header, footer {
   padding: 10px;
   margin-top: 20px;
 }
 
 header {
-  background-color: #ee910c;
+  background-color: orange;
 }
 
 footer {
