@@ -56,12 +56,13 @@ a {
     display: block;
   }
   .buttonHolder {
-    text-align: left;
-    padding: 10px;
+    margin-top: 10px;
   }
-  .tagmap{
-    margin-left: 50%;
+  #tag-form > fieldset > input {
+    width:98%;
+
   }
+
 
   .tagmap{
     margin-right:auto;
@@ -97,7 +98,7 @@ input {
   padding: 20px;
 }
 
-section + h2{
+h2{
   text-align: center;
 }
 header, footer {
