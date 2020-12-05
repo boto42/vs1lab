@@ -1,0 +1,115 @@
+body {
+  padding: 50px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+
+}
+
+.col-1  {flex: 1;}
+.col-2  {flex: 2;}
+.col-3  {flex: 3;}
+.col-4  {flex: 4;}
+.col-5  {flex: 5;}
+.col-6  {flex: 6;}
+.col-7  {flex: 7;}
+.col-8  {flex: 8;}
+.col-9  {flex: 9;}
+.col-10 {flex: 10;}
+.col-11 {flex: 11;}
+.col-12 {flex: 12;}
+
+[class*="col-"] {
+  padding: 15px;
+}
+#tag-form > fieldset > input {
+  display: block;
+  margin: 10px;
+}
+
+#tag-form > fieldset > label {
+  font-weight: bold;
+  margin: 10px;
+  font-size: large;
+}
+.buttonHolder{
+  text-align: center;
+}
+@media only screen and (max-width: 970px) {
+  /* For mobile phones: */
+  .container {
+   flex-direction: column;
+  }
+  [class*="col-"] {
+    display: block;
+  }
+  .buttonHolder {
+    margin-top: 10px;
+  }
+  #tag-form > fieldset > input {
+    width:98%;
+
+  }
+
+
+  .tagmap{
+    margin-right:auto;
+    margin-left: auto;
+  }
+
+
+
+}
+
+.row::after {
+  content: "";
+  clear: both;
+  display: block;
+}
+input {
+  font-size: large;
+}
+
+
+#results {
+  margin: 0;
+  padding: 0;
+}
+
+#results > li {
+  background-color: rgb(51, 117, 143);
+  border: 1px solid black;
+  color: white;
+  font-weight: bold;
+  list-style-type: none;
+  margin: 0 0 20px 0;
+  padding: 20px;
+}
+
+h2{
+  text-align: center;
+}
+header, footer {
+  padding: 10px;
+  margin-top: 20px;
+}
+
+header {
+  background-color: orange;
+}
+
+footer {
+  background-color: lightsteelblue;
+}
