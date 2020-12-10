@@ -30,9 +30,15 @@
 						<legend><h3> Enter your own Geotag </h3></legend>
 
 						<label for="latitude">Latitude:</label>
-						<input type="text" id="latitude" name="latitude" placeholder="0.00000" required>
+						<input type="text" id="latitude" name="latitude" placeholder="0.00000" required <%_
+							if (typeof latitude !== 'undefined') { -%>
+								value=<%= latitude %>
+							<%_ } _%>>
 						<label for="longitude">Longitude:</label>
-						<input type="text" id="longitude" name="longitude" placeholder="0.00000" required>
+						<input type="text" id="longitude" name="longitude" placeholder="0.00000" required <%_
+							if (typeof longitude !== 'undefined') { _%>
+								value=<%= longitude %>
+							<%_ } _%>>
 						<label for="name">Name:</label>
 						<input type="text" id="name" name="name" placeholder="max. 10 letters"
 							   maxlength=10 required>
@@ -60,8 +66,14 @@
 								<label for="searchterm"></label>
 								<input type="text" id="searchterm" name="searchterm" placeholder="search term" >
 								<input type="submit" value="apply" >
-								<input type="hidden" id="discovery-latitude" name="latitude" value="">
-								<input type="hidden" id="discovery-longitude" name="longitude" value="">
+								<input type="hidden" id="discovery-latitude" name="latitude" <%_
+									if (typeof latitude !== 'undefined') { _%>
+										value=<%= latitude %>
+									<%_ } _%>>
+								<input type="hidden" id="discovery-longitude" name="longitude" <%_
+									if (typeof longitude !== 'undefined') { _%>
+										value=<%= longitude %>
+									<%_ } _%>>
 							</fieldset>
 						</form>
 				</div>

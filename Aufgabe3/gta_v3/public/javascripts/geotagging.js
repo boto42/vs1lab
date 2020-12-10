@@ -120,8 +120,17 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
         readme: "Dieses Objekt enthält 'öffentliche' Teile des Moduls.",
 
           updateLocation: function() {
+            // nur die Karte laden, wenn wir Koordinaten schon haben
+            if ($('#latitude').val() && $('#longitude').val() &&
+                $('#discovery-latitude').val() && $('#discovery-longitude').val())
+            {
+                console.log("DEBUG: Koordinaten schon vorhanden. Nur Karte wird geladen");
+                $('#result-img').attr('src', getLocationMapSrc($('#latitude').val(), $('#longitude').val(), undefined, 13));
+                return;
+            }
+
             tryLocate(function(position){
-				document.getElementById("latitude").setAttribute("Value",getLatitude(position));
+				document.getElementById("latitude").value = getLatitude(position);
 				document.getElementById("longitude").value = getLongitude(position);
 				document.getElementById("discovery-latitude").value = getLatitude(position);
 				document.getElementById("discovery-longitude").value = getLongitude(position);

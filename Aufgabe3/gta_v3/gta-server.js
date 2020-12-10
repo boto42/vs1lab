@@ -138,7 +138,9 @@ app.post('/tagging', function (req, res) {
     var tag = new GeoTag(data.latitude, data.longitude, data.name, data.hashtag);
     GeoTags.addTag(tag);
     res.render('gta', {
-        taglist: GeoTags.findTagsInRadius(tag.latitude, tag.longitude, 5)
+        taglist: GeoTags.findTagsInRadius(tag.latitude, tag.longitude, 5),
+        latitude: data.latitude,
+        longitude: data.longitude
     });
 });
 
@@ -164,7 +166,9 @@ app.post('/discovery', function (req, res) {
     }
 
     res.render('gta', {
-        taglist: tags
+        taglist: tags,
+        latitude: data.latitude,
+        longitude: data.longitude
     });
 });
 
