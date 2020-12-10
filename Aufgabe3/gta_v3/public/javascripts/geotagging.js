@@ -101,9 +101,10 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
             return "images/mapview.jpg";
         }
 
-        var tagList = "&pois=You," + lat + "," + lon;
-        if (tags !== undefined) tags.forEach(function(tag) {
-            tagList += "|" + tag.name + "," + tag.latitude + "," + tag.longitude;
+        // MapQuest kann nur Zahlen und einzelne Buchstaben als Label nehmen
+        var tagList = "pois=U," + lat + "," + lon;
+        if (tags !== undefined) tags.forEach(function(tag, index) {
+            tagList += "|" + /*tag.name*/ (index+1) + "," + tag.latitude + "," + tag.longitude;
         });
 
         var urlString = "https://www.mapquestapi.com/staticmap/v4/getmap?key=" +
@@ -120,21 +121,32 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
         readme: "Dieses Objekt enthält 'öffentliche' Teile des Moduls.",
 
           updateLocation: function() {
+            var taglist_json = $('#result-img').attr('data-tags');
+            // JQuery.data() parst data-Attribute automatisch
+            // var taglist = $('#result-img').data('tags');
+            var taglist = [];
+            if (taglist_json) {
+                taglist = JSON.parse(taglist_json);
+            }
+            console.log("DEBUG: taglist_json = " + taglist_json);
+
             // nur die Karte laden, wenn wir Koordinaten schon haben
-            if ($('#latitude').val() && $('#longitude').val() &&
+            if ($('#tagging-latitude').val() && $('#tagging-longitude').val() &&
                 $('#discovery-latitude').val() && $('#discovery-longitude').val())
             {
                 console.log("DEBUG: Koordinaten schon vorhanden. Nur Karte wird geladen");
-                $('#result-img').attr('src', getLocationMapSrc($('#latitude').val(), $('#longitude').val(), undefined, 13));
+                $('#result-img').attr('src', getLocationMapSrc($('#tagging-latitude').val(), $('#tagging-longitude').val(), taglist, 13));
                 return;
             }
 
             tryLocate(function(position){
 				document.getElementById("latitude").value = getLatitude(position);
 				document.getElementById("longitude").value = getLongitude(position);
+				document.getElementById("tagging-latitude").value = getLatitude(position); // Client-Koordinaten speichen,
+				document.getElementById("tagging-longitude").value = getLongitude(position); // falls sie manuell geändert werden.
 				document.getElementById("discovery-latitude").value = getLatitude(position);
 				document.getElementById("discovery-longitude").value = getLongitude(position);
-				document.getElementById("result-img").src =  getLocationMapSrc(getLatitude(position),getLongitude(position),undefined,13);
+				document.getElementById("result-img").src =  getLocationMapSrc(getLatitude(position),getLongitude(position),taglist,13);
 			},
 			function (errorMessage){
 				alert(errorMessage);

@@ -139,8 +139,8 @@ app.post('/tagging', function (req, res) {
     GeoTags.addTag(tag);
     res.render('gta', {
         taglist: GeoTags.findTagsInRadius(tag.latitude, tag.longitude, 5),
-        latitude: data.latitude,
-        longitude: data.longitude
+        latitude: data.client_lat,
+        longitude: data.client_lon
     });
 });
 

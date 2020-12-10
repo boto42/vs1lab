@@ -30,21 +30,23 @@
 						<legend><h3> Enter your own Geotag </h3></legend>
 
 						<label for="latitude">Latitude:</label>
-						<input type="text" id="latitude" name="latitude" placeholder="0.00000" required <%_
-							if (typeof latitude !== 'undefined') { -%>
-								value=<%= latitude %>
-							<%_ } _%>>
+						<%_
+							var lat_value = "";
+							var lon_value = "";
+							if (typeof latitude !== 'undefined') { lat_value = " value=" + latitude; }
+							if (typeof longitude !== 'undefined') { lon_value = " value=" + longitude; }
+						_%>
+						<input type="text" id="latitude" name="latitude" placeholder="0.00000" required<%= lat_value %>>
 						<label for="longitude">Longitude:</label>
-						<input type="text" id="longitude" name="longitude" placeholder="0.00000" required <%_
-							if (typeof longitude !== 'undefined') { _%>
-								value=<%= longitude %>
-							<%_ } _%>>
+						<input type="text" id="longitude" name="longitude" placeholder="0.00000" required<%= lon_value %>>
 						<label for="name">Name:</label>
 						<input type="text" id="name" name="name" placeholder="max. 10 letters"
-							   maxlength=10 required>
+							maxlength=10 required>
 						<label for="hashtag">Hashtag:</label>
 						<input type="text" id="hashtag" name="hashtag" placeholder="# + max. 10 letters"
-							   pattern="^#[A-Za-z_äöüÄÖÜß]{1,10}$">
+							pattern="^#[A-Za-z_äöüÄÖÜß]{1,10}$">
+						<input type="hidden" id="tagging-latitude" name="client_lat"<%= lat_value %>>
+						<input type="hidden" id="tagging-longitude" name="client_lon"<%= lon_value %>>
 						<div class="buttonHolder">
 							<input id="tag-submit" type="submit" value="Submit" >
 						</div>
@@ -66,14 +68,8 @@
 								<label for="searchterm"></label>
 								<input type="text" id="searchterm" name="searchterm" placeholder="search term" >
 								<input type="submit" value="apply" >
-								<input type="hidden" id="discovery-latitude" name="latitude" <%_
-									if (typeof latitude !== 'undefined') { _%>
-										value=<%= latitude %>
-									<%_ } _%>>
-								<input type="hidden" id="discovery-longitude" name="longitude" <%_
-									if (typeof longitude !== 'undefined') { _%>
-										value=<%= longitude %>
-									<%_ } _%>>
+								<input type="hidden" id="discovery-latitude" name="latitude"<%= lat_value %>>
+								<input type="hidden" id="discovery-longitude" name="longitude"<%= lon_value %>>
 							</fieldset>
 						</form>
 				</div>
@@ -83,13 +79,13 @@
 				<div class="row container">
 					<div class="taglist col-4">
 						<ul id="results">
-						<% if (taglist !== undefined) taglist.forEach(function(gtag) { %>
-							<li><%= gtag.name %> (<%= gtag.latitude %>, <%= gtag.longitude %>) <%= gtag.hashtag %> </li>
+						<% if (taglist !== undefined) taglist.forEach(function(gtag, index) { %>
+							<li><%= index+1 %>. <%= gtag.name %> (<%= gtag.latitude %>, <%= gtag.longitude %>) <%= gtag.hashtag %> </li>
 						<% }); %>
 						</ul>
 					</div>
 					<div class="tagmap col-8">
-						<img id="result-img" src="./images/mapview.jpg" alt="a map with locations"/>
+						<img id="result-img" src="./images/mapview.jpg" alt="a map with locations" data-tags="<%= JSON.stringify(taglist) %>" />
 						<div class="caption">Result map</div>
 					</div>
 				</div>
