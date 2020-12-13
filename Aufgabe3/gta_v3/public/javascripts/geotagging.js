@@ -135,7 +135,7 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
                 $('#discovery-latitude').val() && $('#discovery-longitude').val())
             {
                 console.log("DEBUG: Koordinaten schon vorhanden. Nur Karte wird geladen");
-                $('#result-img').attr('src', getLocationMapSrc($('#tagging-latitude').val(), $('#tagging-longitude').val(), taglist, 13));
+                $('#result-img').attr('src', getLocationMapSrc($('#tagging-latitude').val(), $('#tagging-longitude').val(), taglist, 12));
                 return;
             }
 
@@ -146,7 +146,7 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
 				document.getElementById("tagging-longitude").value = getLongitude(position); // falls sie manuell geändert werden.
 				document.getElementById("discovery-latitude").value = getLatitude(position);
 				document.getElementById("discovery-longitude").value = getLongitude(position);
-				document.getElementById("result-img").src =  getLocationMapSrc(getLatitude(position),getLongitude(position),taglist,13);
+				document.getElementById("result-img").src =  getLocationMapSrc(getLatitude(position),getLongitude(position),taglist,12);
 			},
 			function (errorMessage){
 				alert(errorMessage);
