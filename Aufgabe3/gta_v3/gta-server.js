@@ -158,15 +158,15 @@ app.post('/tagging', function (req, res) {
 
 app.post('/discovery', function (req, res) {
     var data = req.body;
-    var tags;
-    var tags2;
-    var res;
+    var tagsInRadius;
+    var tagsSearchterm;
+    var results;
     tagsInRadius = GeoTags.findTagsInRadius(data.latitude, data.longitude, 5);
     results = tagsInRadius;
     if (data.searchterm !== undefined && data.searchterm !== "") {
         tagsSearchterm = GeoTags.findTags(data.searchterm);
-        var intersection = tagsInRadius.filter(x => tagsSearchterm.includes(x));
-        results =intersection;
+        results = tagsInRadius.filter(tag => tagsSearchterm.includes(tag));
+
     }
 
     res.render('gta', {
