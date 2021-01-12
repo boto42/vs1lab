@@ -29,14 +29,19 @@ app.set('view engine', 'ejs');
  * Teste das Ergebnis im Browser unter 'http://localhost:3000/'.
  */
 
-// TODO: CODE ERGÄNZEN
+app.use(express.static(__dirname + "/public"));
 
 /**
  * Konstruktor für GeoTag Objekte.
  * GeoTag Objekte sollen min. alle Felder des 'tag-form' Formulars aufnehmen.
  */
 
-// TODO: CODE ERGÄNZEN
+function GeoTag(latitude, longitude, name, hashtag) {
+    this.latitude = latitude;
+    this.longitude = longitude;
+    this.name = name;
+    this.hashtag = hashtag;
+}
 
 /**
  * Modul für 'In-Memory'-Speicherung von GeoTags mit folgenden Komponenten:
@@ -47,7 +52,58 @@ app.set('view engine', 'ejs');
  * - Funktion zum Löschen eines Geo Tags.
  */
 
-// TODO: CODE ERGÄNZEN
+var GeoTags = (function () {
+    // private
+    var gtags = [];
+
+    // distance function basiert auf https://jonisalonen.com/2014/computing-distance-between-coordinates-can-be-simple-and-fast/
+    // soll OK für kleine Distanzen sein (<50km)
+    function distance(lat1, lon1, lat2, lon2) {
+        let deglen = 110.25;
+        var x = lat2 - lat1;
+        var y = (lon2 - lon1) * Math.cos(lat1 * Math.PI / 180.0);
+        return deglen * Math.sqrt(x * x + y * y);
+    }
+
+    // public
+    return {
+        findTagsInRadius: function (latitude, longitude, radius) {
+            // radius in km
+            var res = [];
+            gtags.forEach(function (tag) {
+                if (distance(latitude, longitude, tag.latitude, tag.longitude) <= radius) {
+                    res.push(tag);
+                }
+            });
+            return res;
+        },
+        // TODO: testen
+        findTags: function (suchbegriff) {
+            return gtags.filter(function (tag) {
+                return tag.name === suchbegriff || tag.hashtag === suchbegriff;
+            });
+        },
+        addTag: function (tag) {
+            gtags.push(tag);
+            console.log(gtags); // DEBUG
+        },
+        // TODO: testen
+        deleteTag: function (tag) {
+            // wir nehmen an, tag taucht höchstens nur einmal auf
+            for (var i = 0; i < gtags.length; ++i) {
+                var g = gtags[i];
+                if (g.longitude === tag.longitude &&
+                    g.latitude === tag.latitude &&
+                    g.name === tag.name &&
+                    g.hashtag === tag.hashtag)
+                {
+                    gtags.splice(i, 1);
+                    return;
+                }
+            }
+        }
+    };
+})();
 
 /**
  * Route mit Pfad '/' für HTTP 'GET' Requests.
@@ -77,7 +133,16 @@ app.get('/', function(req, res) {
  * Die Objekte liegen in einem Standard Radius um die Koordinate (lat, lon).
  */
 
-// TODO: CODE ERGÄNZEN START
+app.post('/tagging', function (req, res) {
+    var data = req.body;
+    var tag = new GeoTag(data.latitude, data.longitude, data.name, data.hashtag);
+    GeoTags.addTag(tag);
+    res.render('gta', {
+        taglist: GeoTags.findTagsInRadius(tag.latitude, tag.longitude, 5),
+        latitude: data.client_lat,
+        longitude: data.client_lon
+    });
+});
 
 /**
  * Route mit Pfad '/discovery' für HTTP 'POST' Requests.
@@ -91,7 +156,25 @@ app.get('/', function(req, res) {
  * Falls 'term' vorhanden ist, wird nach Suchwort gefiltert.
  */
 
-// TODO: CODE ERGÄNZEN
+app.post('/discovery', function (req, res) {
+    var data = req.body;
+    var tagsInRadius;
+    var tagsSearchterm;
+    var results;
+    tagsInRadius = GeoTags.findTagsInRadius(data.latitude, data.longitude, 5);
+    results = tagsInRadius;
+    if (data.searchterm !== undefined && data.searchterm !== "") {
+        tagsSearchterm = GeoTags.findTags(data.searchterm);
+        results = tagsInRadius.filter(tag => tagsSearchterm.includes(tag));
+
+    }
+
+    res.render('gta', {
+        taglist: results,
+        latitude: data.latitude,
+        longitude: data.longitude
+    });
+});
 
 /**
  * Setze Port und speichere in Express.
