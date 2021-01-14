@@ -1,0 +1,81 @@
+// Neuer Tag erstellen
+
+POST http://localhost:3000/geotags
+Content-Type: application/json
+
+{
+	"tag": {
+		"latitude": 0,
+		"longitude": 0,
+		"name": "API_TEST",
+		"hashtag": "#DEBUG"
+	},
+	"latitude": 0,
+	"longitude": 0,
+	"page": 1
+}
+###
+POST http://localhost:3000/geotags
+Content-Type: application/json
+
+{
+	"tag": {
+		"latitude": 0,
+		"longitude": 0,
+		"name": "API_DEBUG",
+		"hashtag": "#DEBUG"
+	},
+	"latitude": 0,
+	"longitude": 0,
+	"page": 1
+}
+
+###
+
+// Suchen ohne filter
+GET http://localhost:3000/geotags
+
+###
+
+// Suchen mit filter
+GET http://localhost:3000/geotags?searchterm=TEST&latitude=0&longitude=0&page=1
+
+###
+
+// Zugriff durch ID
+GET http://localhost:3000/geotags/0
+
+###
+
+// Ändern
+PUT http://localhost:3000/geotags/0
+Content-Type: application/json
+
+{
+	"tag": {
+		"latitude": 42,
+		"longitude": 42,
+		"name": "asdf",
+		"hashtag": "#asdf"
+	}
+}
+
+###
+
+// Existiert nicht, soll 404 zurückgeben
+PUT http://localhost:3000/geotags/999
+Content-Type: application/json
+
+{
+	"tag": {
+		"latitude": 420,
+		"longitude": 69,
+		"name": "nice",
+		"hashtag": "#nice"
+	}
+}
+
+###
+
+// Löschen
+DELETE http://localhost:3000/geotags/3

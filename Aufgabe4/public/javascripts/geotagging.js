@@ -160,17 +160,12 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
     }; // ... Ende öffentlicher Teil
 })(GEOLOCATIONAPI);
 
-
-
 function GeoTag(latitude, longitude, name, hashtag) {
     this.latitude = latitude;
     this.longitude = longitude;
     this.name = name;
     this.hashtag = hashtag;
 }
-
-
-
 
 var ajax =new XMLHttpRequest();
 
@@ -186,7 +181,10 @@ if(ajax.readyState ==4){
         $('#results').html("");
         taglist.forEach(function(tag, index) {
             listElement = document.createElement('li');
+            // TODO: cleanup. template string?
+            // TODO: include index number to match map preview
             listElement.innerHTML = tag.name+ " (  " + tag.latitude + " " +tag.longitude +" ) " +tag.hashtag +" "+tag.id;
+            // TODO: save once instead of repeated getElementById
             document.getElementById('results').appendChild(listElement);
         });
         $('#result-img').attr("data-tags" ,JSON.stringify(taglist));
@@ -202,8 +200,8 @@ if(ajax.readyState ==4){
             document.getElementById("page-left").style.visibility = "visible";
         }
         console.log(ajax.response.maxPage);
-        if(ajax.response.maxPage <= page){  // falls letzte Seite
-
+        if(page >= ajax.response.maxPage){  // falls letzte Seite
+            page = ajax.response.maxPage
             document.getElementById("page-next").style.visibility = "hidden";
             document.getElementById("page-right").style.visibility = "hidden";
         }else {
@@ -227,6 +225,7 @@ if(ajax.readyState ==4){
 var page = 1;
 
 var postTag = function(){
+    // TODO: SPACE
     var tag = new GeoTag($('#latitude').val(),$('#longitude').val(),$('#name').val(),$('#hashtag').val());
     ajax.open("post","/geotags",true);
     ajax.setRequestHeader("Content-Type", "application/json");
@@ -236,28 +235,31 @@ var postTag = function(){
     let longitude = $('#tagging-longitude').val();
     ajax.send(JSON.stringify({tag,latitude,longitude,page} ));
 };
+
 var getTags = function(){
+    // TODO: SPACE
     let lat = "latitude="+ $('#discovery-latitude').val();
     let long = "&longitude=" + $('#discovery-longitude').val();
     let search = "&searchterm=" + $('#searchterm').val();
     let url =encodeURI( "/geotags?"+lat+long+search +"&page="+page);
     console.log(url);
+
     ajax.open("get",url,true);
     ajax.responseType = "json";
     ajax.send(null);
 };
 
-
 $(function() {
-	 document.getElementById("tag-submit").addEventListener("click",postTag);
+    // TODO: fix indent
+    document.getElementById("tag-submit").addEventListener("click",postTag);
 
-	 document.getElementById("filter-submit").addEventListener("click", function (){
-         page = 1;
-         getTags();
+    document.getElementById("filter-submit").addEventListener("click", function (){
+        page = 1;
+        getTags();
      });
     document.getElementById("page-right").addEventListener("click",function (){
-       page++;
-       getTags();
+        page++;
+        getTags();
     });
     document.getElementById("page-next").addEventListener("click",function (){
         page++;
@@ -276,7 +278,7 @@ $(function() {
         getTags();
     });
     document.getElementById("page-actual").addEventListener("click",getTags);
-	gtaLocator.updateLocation();
+    gtaLocator.updateLocation();
     //alert("Please change the script 'geotagging.js'");
     // TODO Hier den Aufruf für updateLocation einfügen
 });

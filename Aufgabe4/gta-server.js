@@ -38,8 +38,8 @@ app.use(express.static(__dirname + "/public"));
  */
 var idCounter = 0;  // todo id mit übergeben ?
 function GeoTag(latitude, longitude, name, hashtag) {
-    this.latitude = latitude;
-    this.longitude = longitude;
+    this.latitude = Number.parseFloat(latitude);
+    this.longitude = Number.parseFloat(longitude);
     this.name = name;
     this.hashtag = hashtag;
     this.id = idCounter;
@@ -73,39 +73,31 @@ var GeoTags = (function () {
 
         findTagsInRadius: function (latitude, longitude, radius) {
             // radius in km
-            var res = [];
-            gtags.forEach(function (tag) {
-                if (distance(latitude, longitude, tag.latitude, tag.longitude) <= radius) {
-                    res.push(tag);
-                }
-            });
-            return res;
+            return gtags.filter(
+                tag =>
+                    distance(latitude, longitude, tag.latitude, tag.longitude) <= radius
+            );
         },
 
-        findTags: function (suchbegriff) {
-            return gtags.filter(function (tag) {
-                return tag.name === suchbegriff || tag.hashtag === "#"+suchbegriff;  // todo übermittlung des Hashtags mit URL
-            });
+        findTags: function (suchbegriff = "") {
+            return gtags.filter(tag =>
+                tag.name.includes(suchbegriff) ||
+                tag.hashtag.includes(suchbegriff) // todo übermittlung des Hashtags mit URL
+            );
         },
+
         addTag: function (tag) {
             gtags.push(tag);
             console.log(gtags); // DEBUG
         },
 
-        searchById: function(id){
-            return gtags.filter(tag => tag.id == id);
+        // id ist eindeutig. return nur eins (mehrere soll es nicht geben)
+        getById: function(id){
+            return gtags.filter(tag => tag.id == id)[0];
         },
 
-        // TODO: testen
         deleteTag: function (id) {
-            for (var i = 0; i < gtags.length; ++i) {
-                var g = gtags[i];
-                if (g.id == id)
-                {
-                    gtags.splice(i, 1);
-                    return;
-                }
-            }
+            gtags = gtags.filter(tag => tag.id !== Number.parseInt(id))
         }
     };
 })();
@@ -187,61 +179,63 @@ app.post('/discovery', function (req, res) {
 
 // Hinzufügen eines Tags gibt die tags im Radius zurück
 app.post('/geotags', function (req, res) {
+    let {latitude, longitude, page = 1} = req.body;
+
     let newTag = req.body.tag;
     let tag = new GeoTag(newTag.latitude, newTag.longitude, newTag.name, newTag.hashtag);
     GeoTags.addTag(tag);
 
-    let page = req.body.page;
-    let tags = GeoTags.findTagsInRadius(req.body.latitude,req.body.longitude,5); // verwendet die Koordinaten der Versteckten inputs
-    let maxPage = tags.length/elementsPerPage;
-    tags = tags.slice((page-1)*elementsPerPage,page*elementsPerPage);
+    let tags = GeoTags.findTagsInRadius(latitude, longitude, 5); // verwendet die Koordinaten der Versteckten inputs
+    var maxPage = Math.max(1, Math.ceil(tags.length / elementsPerPage));
+    tags = tags.slice((page - 1) * elementsPerPage, page * elementsPerPage);
 
     //URL in header location todo testen ob header klappt
-    res.header('Location',"/geotags/"+tag.id);
-    res.status(201).json({tags,maxPage});
+    res.header('Location', "/geotags/" + tag.id);
+    res.status(201).json({ tags, maxPage });
 });
 
 // suchen der Tags
 app.get('/geotags', function (req, res) {
-    let searchterm = req.query.searchterm;
-    let latitude = req.query.latitude;
-    let longitude = req.query.longitude;
-    let page = req.query.page;
-    let tags;
-    let tagsInRadius = GeoTags.findTagsInRadius(latitude, longitude, 5);
-    tags = tagsInRadius;
-    if (searchterm !== undefined && searchterm !== "") {
-        let tagsSearchterm = GeoTags.findTags(searchterm);
-        tags = tagsInRadius.filter(tag => tagsSearchterm.includes(tag));
+    let {searchterm, latitude, longitude, page = 1} = req.query
+    // default (searchterm undefiniert oder leer): alle GeoTags
+    let tags = GeoTags.findTags(searchterm);
 
+    // Ort optional
+    if (typeof latitude !== 'undefined' && typeof longitude !== 'undefined') {
+        let inRadius = GeoTags.findTagsInRadius(latitude, longitude, 5);
+        tags.filter(tag => inRadius.includes(tag));
     }
 
-    var maxPage = tags.length/elementsPerPage;
-    tags = tags.slice((page-1)*elementsPerPage,page*elementsPerPage);
-    res.json({tags,maxPage});
+    var maxPage = Math.max(1, Math.ceil(tags.length / elementsPerPage));
+    tags = tags.slice((page - 1) * elementsPerPage, page * elementsPerPage);
+    res.json({ tags, maxPage });
 });
 
 
 // ein geotag ändern
 app.put('/geotags/:id',function(req,res) {
     console.log("put");
-    let tag = GeoTags.searchById(req.params.id)[0];
-    let data = req.body.tag;
-    tag.latitude = data.latitude;
-    tag.longitude = data.longitude;
-    tag.name = data.name;
-    tag.hashtag = data.hashtag;
-    let page = req.body.page;
-    let tags = {tag};
-    let maxPage = 1;
-    res.status(201).json({tags,maxPage});
+    let tag = GeoTags.getById(req.params.id);
+    if (tag) {
+        let data = req.body.tag;
+        tag.latitude = data.latitude;
+        tag.longitude = data.longitude;
+        tag.name = data.name;
+        tag.hashtag = data.hashtag;
+        res.json({ tags: [tag], maxPage: 1 });
+    } else {
+        res.status(404).send(null);
+    }
 });
 
 //ein geotag mit id suchen
 app.get('/geotags/:id',function(req,res) {
-    let tags = GeoTags.searchById(req.params.id);
-    let maxPage = 1;
-    res.json({tags,maxPage});
+    let tag = GeoTags.getById(req.params.id);
+    if (tag) {
+        res.json({ tags: [tag], maxPage: 1 });
+    } else {
+        res.status(404).json({ tags: [], maxPage: 1 });
+    }
 });
 
 // ein geotag löschen
