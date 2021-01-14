@@ -93,21 +93,22 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
      * tags : Array mit Geotag Objekten, das auch leer bleiben kann
      * zoom: Zoomfaktor der Karte
      */
-    var getLocationMapSrc = function(lat, lon, tags, zoom) {
-        zoom = typeof zoom !== 'undefined' ? zoom : 10;
-
+    var getLocationMapSrc = function(lat, lon, tags, zoom = 10) {
         if (apiKey === "YOUR_API_KEY_HERE") {
             console.log("No API key provided.");
             return "images/mapview.jpg";
         }
 
         // MapQuest kann nur Zahlen und einzelne Buchstaben als Label nehmen
-        var tagList = "pois=U," + lat + "," + lon;
-        if (tags !== undefined) tags.forEach(function(tag, index) {
-            tagList += "|" + /*tag.name*/ (index+1) + "," + tag.latitude + "," + tag.longitude;
-        });
+        let tagList = `pois=U,${lat},${lon}`;
+        console.log(JSON.stringify(tags))
+        if (typeof tags !== 'undefined') {
+            tags.forEach(function(tag) {
+                tagList += `|${tag.id},${tag.latitude},${tag.longitude}`;
+            });
+        }
 
-        var urlString = "https://www.mapquestapi.com/staticmap/v4/getmap?key=" +
+        let urlString = "https://www.mapquestapi.com/staticmap/v4/getmap?key=" +
             apiKey + "&size=600,400&zoom=" + zoom + "&center=" + lat + "," + lon + "&" + tagList;
 
         console.log("Generated Maps Url: " + urlString);
@@ -120,15 +121,16 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
 
         readme: "Dieses Objekt enthält 'öffentliche' Teile des Moduls.",
 
-          updateLocation: function() {
-            var taglist_json = $('#result-img').attr('data-tags');
+        updateLocation: function() {
             // JQuery.data() parst data-Attribute automatisch
-            // var taglist = $('#result-img').data('tags');
+            let taglist = $('#result-img').data('tags');
+            /*
             var taglist = [];
             if (taglist_json) {
                 taglist = JSON.parse(taglist_json);
             }
-            console.log("DEBUG: taglist_json = " + taglist_json);
+            */
+            console.log("DEBUG: taglist = " + JSON.stringify(taglist));
 
             // nur die Karte laden, wenn wir Koordinaten schon haben
             if ($('#tagging-latitude').val() && $('#tagging-longitude').val() &&
@@ -142,19 +144,19 @@ var gtaLocator = (function GtaLocator(geoLocationApi) {
                 return;
             }
 
-            tryLocate(function(position){
-				document.getElementById("latitude").value = getLatitude(position);
-				document.getElementById("longitude").value = getLongitude(position);
-				document.getElementById("tagging-latitude").value = getLatitude(position); // Client-Koordinaten speichen,
-				document.getElementById("tagging-longitude").value = getLongitude(position); // falls sie manuell geändert werden.
-				document.getElementById("discovery-latitude").value = getLatitude(position);
-				document.getElementById("discovery-longitude").value = getLongitude(position);
-				document.getElementById("result-img").src =  getLocationMapSrc(getLatitude(position),getLongitude(position),taglist,13);
-				getTags();  // Tag laden bei Erstem laden.
-			},
-			function (errorMessage){
-				alert(errorMessage);
-			});
+            tryLocate(function(position) {
+                document.getElementById("latitude").value = getLatitude(position);
+                document.getElementById("longitude").value = getLongitude(position);
+                document.getElementById("tagging-latitude").value = getLatitude(position); // Client-Koordinaten speichen,
+                document.getElementById("tagging-longitude").value = getLongitude(position); // falls sie manuell geändert werden.
+                document.getElementById("discovery-latitude").value = getLatitude(position);
+                document.getElementById("discovery-longitude").value = getLongitude(position);
+                document.getElementById("result-img").src =  getLocationMapSrc(getLatitude(position), getLongitude(position), taglist, 13);
+                getTags();  // Tag laden bei Erstem laden.
+            },
+            function (errorMessage){
+                alert(errorMessage);
+            });
         }
 
     }; // ... Ende öffentlicher Teil
@@ -167,90 +169,85 @@ function GeoTag(latitude, longitude, name, hashtag) {
     this.hashtag = hashtag;
 }
 
-var ajax =new XMLHttpRequest();
+var ajax = new XMLHttpRequest();
+ajax.onreadystatechange = function() {
+    if (ajax.readyState == 4) {
+        //console.log(ajax.response);
+        console.log(ajax.getResponseHeader("Location"));
+        if (ajax.response.tags) {
+            let taglist = ajax.response.tags; // response besteht aus taglist und der anzahl Seiten
+            let results = document.getElementById("results");
+            results.innerHTML = "";
+            taglist.forEach(function(tag) {
+                listElement = document.createElement('li');
+                listElement.innerHTML = `${tag.id}. ${tag.name} ( ${tag.latitude}, ${tag.longitude} ) ${tag.hashtag}`
+                results.appendChild(listElement);
+            });
 
-ajax.onreadystatechange =function(){
+            // Karte aktualisieren
+            $('#result-img').data("tags", taglist);
+            gtaLocator.updateLocation();
 
-if(ajax.readyState ==4){
-
-	//console.log(ajax.response);
-	console.log(ajax.getResponseHeader("Location"))
-	if(ajax.response.tags){
-
-		var taglist = (ajax.response.tags); // response besteht aus taglist und der anzahl Seiten
-        $('#results').html("");
-        taglist.forEach(function(tag, index) {
-            listElement = document.createElement('li');
-            // TODO: cleanup. template string?
-            // TODO: include index number to match map preview
-            listElement.innerHTML = tag.name+ " (  " + tag.latitude + " " +tag.longitude +" ) " +tag.hashtag +" "+tag.id;
-            // TODO: save once instead of repeated getElementById
-            document.getElementById('results').appendChild(listElement);
-        });
-        $('#result-img').attr("data-tags" ,JSON.stringify(taglist));
-        gtaLocator.updateLocation();
-        document.getElementById("page-actual").value = page;
-        document.getElementById("page-next").value = page+1;
-        document.getElementById("page-previous").value = page-1;
-        if(page == 1){
-            document.getElementById("page-previous").style.visibility = "hidden";
-            document.getElementById("page-left").style.visibility = "hidden";
-        }else {
-            document.getElementById("page-previous").style.visibility = "visible";
-            document.getElementById("page-left").style.visibility = "visible";
+            // Seitennummern aktualisieren
+            document.getElementById("page-actual").value = page;
+            document.getElementById("page-next").value = page+1;
+            document.getElementById("page-previous").value = page-1;
+            // Tasten verstecken
+            if (page == 1) {
+                document.getElementById("page-previous").style.visibility = "hidden";
+                document.getElementById("page-left").style.visibility = "hidden";
+            } else {
+                document.getElementById("page-previous").style.visibility = "visible";
+                document.getElementById("page-left").style.visibility = "visible";
+            }
+            console.log(ajax.response.maxPage);
+            if (page >= ajax.response.maxPage) {  // falls letzte Seite
+                page = ajax.response.maxPage
+                document.getElementById("page-next").style.visibility = "hidden";
+                document.getElementById("page-right").style.visibility = "hidden";
+            } else {
+                document.getElementById("page-next").style.visibility = "visible";
+                document.getElementById("page-right").style.visibility = "visible";
+            }
+            console.log("AJAX finished");
         }
-        console.log(ajax.response.maxPage);
-        if(page >= ajax.response.maxPage){  // falls letzte Seite
-            page = ajax.response.maxPage
-            document.getElementById("page-next").style.visibility = "hidden";
-            document.getElementById("page-right").style.visibility = "hidden";
-        }else {
-            document.getElementById("page-next").style.visibility = "visible";
-            document.getElementById("page-right").style.visibility = "visible";
-        }
-		console.log("finished");
-	}
-// Verarbeite eingehende Daten
-}
+    // Verarbeite eingehende Daten
+    }
 };
 //Ende der Funktion
 
-
+// aktuelle Seite
+var page = 1;
 
 /**
  * $(function(){...}) wartet, bis die Seite komplett geladen wurde. Dann wird die
  * angegebene Funktion aufgerufen. An dieser Stelle beginnt die eigentliche Arbeit
  * des Skripts.
  */
-var page = 1;
-
 var postTag = function(){
-    // TODO: SPACE
-    var tag = new GeoTag($('#latitude').val(),$('#longitude').val(),$('#name').val(),$('#hashtag').val());
-    ajax.open("post","/geotags",true);
+    let tag = new GeoTag($('#latitude').val(), $('#longitude').val(), $('#name').val(), $('#hashtag').val());
+    ajax.open("post", "/geotags", true);
     ajax.setRequestHeader("Content-Type", "application/json");
     ajax.responseType = "json";
     console.log(tag);
     let latitude = $('#tagging-latitude').val();
     let longitude = $('#tagging-longitude').val();
-    ajax.send(JSON.stringify({tag,latitude,longitude,page} ));
+    ajax.send(JSON.stringify({ tag, latitude, longitude, page } ));
 };
 
 var getTags = function(){
-    // TODO: SPACE
-    let lat = "latitude="+ $('#discovery-latitude').val();
+    let lat = "latitude=" + $('#discovery-latitude').val();
     let long = "&longitude=" + $('#discovery-longitude').val();
-    let search = "&searchterm=" + $('#searchterm').val();
-    let url =encodeURI( "/geotags?"+lat+long+search +"&page="+page);
+    let search = "&searchterm=" + encodeURIComponent($('#searchterm').val());
+    let url = encodeURI( "/geotags?" + lat + long + search + "&page=" + page);
     console.log(url);
 
-    ajax.open("get",url,true);
+    ajax.open("get", url, true);
     ajax.responseType = "json";
     ajax.send(null);
 };
 
 $(function() {
-    // TODO: fix indent
     document.getElementById("tag-submit").addEventListener("click",postTag);
 
     document.getElementById("filter-submit").addEventListener("click", function (){
