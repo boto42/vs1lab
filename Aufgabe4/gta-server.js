@@ -197,6 +197,7 @@ app.post('/geotags', function (req, res) {
 // suchen der Tags
 app.get('/geotags', function (req, res) {
     let {searchterm, latitude, longitude, page = 1} = req.query
+    searchterm = decodeURIComponent(searchterm); // decode "#"
     // default (searchterm undefiniert oder leer): alle GeoTags
     let tags = GeoTags.findTags(searchterm);
 
