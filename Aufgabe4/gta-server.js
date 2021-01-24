@@ -206,7 +206,7 @@ app.get('/geotags', function (req, res) {
     // Ort optional
     if (typeof latitude !== 'undefined' && typeof longitude !== 'undefined') {
         let inRadius = GeoTags.findTagsInRadius(latitude, longitude, 5);
-        tags.filter(tag => inRadius.includes(tag));
+        tags = tags.filter(tag => inRadius.includes(tag));
     }
 
     var maxPage = Math.max(1, Math.ceil(tags.length / elementsPerPage));
